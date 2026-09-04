@@ -1,5 +1,6 @@
 vpcs = {
-  example01 = {                        # Key defines the userDefinedString
+  example01 = { # Key defines the userDefinedString
+    # name               = "my-custom-vpc-name" # Optional: overrides the auto-derived "<env>-example01" Name tag
     cidr_block         = "10.0.0.0/16" # Optional: primary IPv4 CIDR block
     instance_tenancy   = "default"     # Optional: default, dedicated. Default: default
     enable_dns_support = true          # Optional: Default: true

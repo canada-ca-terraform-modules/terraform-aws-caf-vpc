@@ -15,7 +15,7 @@ variable "userDefinedString" {
 }
 
 variable "vpc" {
-  description = "(Required) Object describing the VPC (see TFVars Parameters below)"
+  description = "(Required) Object describing the VPC (see TFVars Parameters below). Optional `name` key overrides the auto-derived \"env-userDefinedString\" Name tag value."
   type        = any
   default     = {}
 }

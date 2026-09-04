@@ -93,6 +93,7 @@ No modules.
 
 | Parameter | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
+| `name` | string | `null` | Optional custom "Name" tag value. When omitted, defaults to `"<env>-<userDefinedString>"`. Either way, sanitized against AWS's tag-value charset and truncated to 256 characters. |
 | `use_default_vpc` | bool | `false` | Adopt the account's pre-existing default VPC in this region instead of creating a new one. Mutually exclusive with the core `aws_vpc` arguments below. |
 | `cidr_block` | string | `null` | Primary IPv4 CIDR block. |
 | `instance_tenancy` | string | `"default"` | `default` or `dedicated`. |

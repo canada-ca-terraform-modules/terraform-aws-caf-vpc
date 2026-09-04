@@ -7,6 +7,15 @@ This file must be updated as part of every change to this module.
 
 ## [Unreleased]
 
+### Added
+
+- `vpc.name` - an optional key on the `vpc` object variable that overrides
+  the auto-derived `"<env>-<userDefinedString>"` Name tag with a
+  user-supplied custom name, still sanitized against AWS's tag-value
+  charset and truncated to 256 characters. Added a
+  `naming_custom_name_override` test run, updated `README.md`'s TFVars
+  Parameters table and `ESLZ/vpc.tfvars`.
+
 ### Changed
 
 - `README.md`'s Scope section now cross-references the new companion

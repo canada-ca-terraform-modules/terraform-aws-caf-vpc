@@ -73,6 +73,24 @@ run "naming_strips_disallowed_characters" {
 }
 
 # ---------------------------------------------------------------------------
+# naming_custom_name_override
+# vpc.name, when set, overrides the auto-derived env-userDefinedString Name
+# tag - still sanitized against the tag-value charset and length limit.
+# ---------------------------------------------------------------------------
+run "naming_custom_name_override" {
+  command = plan
+
+  variables {
+    vpc = { name = "my-custom-vpc-name!" }
+  }
+
+  assert {
+    condition     = aws_vpc.this[0].tags["Name"] == "my-custom-vpc-name"
+    error_message = "vpc.name must override the auto-derived Name tag, sanitized against the tag-value charset"
+  }
+}
+
+# ---------------------------------------------------------------------------
 # default_values
 # Plan succeeds with an empty vpc object (all optional fields defaulted)
 # ---------------------------------------------------------------------------
