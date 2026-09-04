@@ -5,6 +5,15 @@ All notable changes to this module are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This file must be updated as part of every change to this module.
 
+## [Unreleased]
+
+### Changed
+
+- `README.md`'s Scope section now cross-references the new companion
+  [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet)
+  module, which covers custom (`aws_subnet`) subnets and subnet-scoped
+  routing - resources this module deliberately does not manage.
+
 ## [1.0.0] - 2026-09-04
 
 ### Added
