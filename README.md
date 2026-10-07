@@ -26,24 +26,26 @@ See [`ESLZ/vpc.tfvars`](ESLZ/vpc.tfvars) for the full set of `vpc` object parame
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
 
 ## Providers
 
 | Name | Version |
-| ---- | ------- |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.63.0 |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.0 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_subnets"></a> [subnets](#module\_subnets) | github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet.git | v1.0.0 |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [aws_default_network_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_network_acl) | resource |
 | [aws_default_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_route_table) | resource |
 | [aws_default_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) | resource |
@@ -64,16 +66,16 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_env"></a> [env](#input\_env) | (Required) env value used in name generation | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags applied to all resources (merged with vpc.tags) | `map(string)` | `{}` | no |
 | <a name="input_userDefinedString"></a> [userDefinedString](#input\_userDefinedString) | (Required) UserDefinedString part of the name of the VPC | `string` | n/a | yes |
-| <a name="input_vpc"></a> [vpc](#input\_vpc) | (Required) Object describing the VPC (see TFVars Parameters below) | `any` | `{}` | no |
+| <a name="input_vpc"></a> [vpc](#input\_vpc) | (Required) Object describing the VPC (see TFVars Parameters below). Optional `name` key overrides the auto-derived "env-userDefinedString" Name tag value. | `any` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_arn"></a> [arn](#output\_arn) | Returns the ARN of the VPC |
 | <a name="output_cidr_block"></a> [cidr\_block](#output\_cidr\_block) | Returns the primary IPv4 CIDR block of the VPC |
 | <a name="output_default_network_acl_id"></a> [default\_network\_acl\_id](#output\_default\_network\_acl\_id) | Returns the ID of the VPC's default network ACL |
@@ -87,6 +89,7 @@ No modules.
 | <a name="output_peering_connection_ids"></a> [peering\_connection\_ids](#output\_peering\_connection\_ids) | Returns the IDs of VPC peering connections, keyed by the caller's chosen name |
 | <a name="output_secondary_ipv4_cidr_block_associations"></a> [secondary\_ipv4\_cidr\_block\_associations](#output\_secondary\_ipv4\_cidr\_block\_associations) | Returns the IDs of secondary IPv4 CIDR block associations, keyed by the caller's chosen name |
 | <a name="output_secondary_ipv6_cidr_block_associations"></a> [secondary\_ipv6\_cidr\_block\_associations](#output\_secondary\_ipv6\_cidr\_block\_associations) | Returns the IDs of secondary IPv6 CIDR block associations, keyed by the caller's chosen name |
+| <a name="output_subnet_ids"></a> [subnet\_ids](#output\_subnet\_ids) | Returns the IDs of the custom subnets declared under vpc.subnets, keyed by the caller's chosen name |
 <!-- END_TF_DOCS -->
 
 ## TFVars Parameters
