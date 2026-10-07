@@ -87,6 +87,14 @@ vpcs = {
     #   # map_public_ip_on_launch = true # Optional
     # }
 
+    # Optional: custom subnets, keyed by name. Each value is the
+    # terraform-aws-caf-subnet module's `subnet` object (cidr_block,
+    # availability_zone, route_table, ...). Name tag: "<env>-example01-<key>".
+    # subnets = {
+    #   app-1a = { cidr_block = "10.0.1.0/24", availability_zone = "ca-central-1a" }
+    #   app-1b = { cidr_block = "10.0.2.0/24", availability_zone = "ca-central-1b" }
+    # }
+
     # Optional: VPC Encryption Control ("encrypt everywhere" guardrail)
     # encryption_control = {
     #   mode = "monitor" # Required: monitor, enforce

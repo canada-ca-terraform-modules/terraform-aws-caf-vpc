@@ -79,3 +79,8 @@ output "peering_connection_ids" {
   description = "Returns the IDs of VPC peering connections, keyed by the caller's chosen name"
   value       = { for k, v in aws_vpc_peering_connection.this : k => v.id }
 }
+
+output "subnet_ids" {
+  description = "Returns the IDs of the custom subnets declared under vpc.subnets, keyed by the caller's chosen name"
+  value       = { for k, v in module.subnets : k => v.id }
+}

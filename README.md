@@ -10,7 +10,7 @@ See [Scope](#scope) below for AWS resources that share the `aws_vpc_` text prefi
 
 ```hcl
 module "vpc" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.0.0"
+  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.1.0"
   for_each = var.vpcs
 
   env               = var.env
@@ -26,24 +26,26 @@ See [`ESLZ/vpc.tfvars`](ESLZ/vpc.tfvars) for the full set of `vpc` object parame
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
 
 ## Providers
 
 | Name | Version |
-| ---- | ------- |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.63.0 |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.0 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_subnets"></a> [subnets](#module\_subnets) | github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet.git | v1.0.0 |
 
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [aws_default_network_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_network_acl) | resource |
 | [aws_default_route_table.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_route_table) | resource |
 | [aws_default_security_group.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) | resource |
@@ -64,16 +66,16 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_env"></a> [env](#input\_env) | (Required) env value used in name generation | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags applied to all resources (merged with vpc.tags) | `map(string)` | `{}` | no |
 | <a name="input_userDefinedString"></a> [userDefinedString](#input\_userDefinedString) | (Required) UserDefinedString part of the name of the VPC | `string` | n/a | yes |
-| <a name="input_vpc"></a> [vpc](#input\_vpc) | (Required) Object describing the VPC (see TFVars Parameters below) | `any` | `{}` | no |
+| <a name="input_vpc"></a> [vpc](#input\_vpc) | (Required) Object describing the VPC (see TFVars Parameters below). Optional `name` key overrides the auto-derived "env-userDefinedString" Name tag value. | `any` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_arn"></a> [arn](#output\_arn) | Returns the ARN of the VPC |
 | <a name="output_cidr_block"></a> [cidr\_block](#output\_cidr\_block) | Returns the primary IPv4 CIDR block of the VPC |
 | <a name="output_default_network_acl_id"></a> [default\_network\_acl\_id](#output\_default\_network\_acl\_id) | Returns the ID of the VPC's default network ACL |
@@ -87,6 +89,7 @@ No modules.
 | <a name="output_peering_connection_ids"></a> [peering\_connection\_ids](#output\_peering\_connection\_ids) | Returns the IDs of VPC peering connections, keyed by the caller's chosen name |
 | <a name="output_secondary_ipv4_cidr_block_associations"></a> [secondary\_ipv4\_cidr\_block\_associations](#output\_secondary\_ipv4\_cidr\_block\_associations) | Returns the IDs of secondary IPv4 CIDR block associations, keyed by the caller's chosen name |
 | <a name="output_secondary_ipv6_cidr_block_associations"></a> [secondary\_ipv6\_cidr\_block\_associations](#output\_secondary\_ipv6\_cidr\_block\_associations) | Returns the IDs of secondary IPv6 CIDR block associations, keyed by the caller's chosen name |
+| <a name="output_subnet_ids"></a> [subnet\_ids](#output\_subnet\_ids) | Returns the IDs of the custom subnets declared under vpc.subnets, keyed by the caller's chosen name |
 <!-- END_TF_DOCS -->
 
 ## TFVars Parameters
@@ -113,6 +116,7 @@ No modules.
 | `default_route_table` | object | `null` | Adopts/manages the VPC's default route table: `{ route, propagating_vgws, tags }`. |
 | `default_network_acl` | object | `null` | Adopts/manages the VPC's default network ACL: `{ subnet_ids, ingress, egress, tags }` (`ingress`/`egress` are lists of rule objects with `rule_no`/`action`/`from_port`/`to_port`/`protocol`/`cidr_block`/etc.). |
 | `default_subnets` | map(object) | `{}` | Adopts/manages per-Availability-Zone default subnets, keyed by name: `{ availability_zone, ipv6_cidr_block, map_public_ip_on_launch, ... }`. |
+| `subnets` | map(object) | `{}` | Custom subnets, keyed by name; each value is the [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module's `subnet` object (`cidr_block`, `availability_zone`, routing, ...). Name tag is `"<env>-<userDefinedString>-<key>"`. |
 | `encryption_control` | object | `null` | VPC Encryption Control: `{ mode (required: monitor/enforce), internet_gateway_exclusion, nat_gateway_exclusion, egress_only_internet_gateway_exclusion, elastic_file_system_exclusion, lambda_exclusion, virtual_private_gateway_exclusion, tags }`. |
 | `block_public_access_exclusions` | map(object) | `{}` | VPC Block Public Access exclusions, keyed by name: `{ internet_gateway_exclusion_mode (required), subnet_id (optional - defaults to excluding the whole VPC when omitted), tags }`. |
 | `peering_connections` | map(object) | `{}` | VPC Peering, keyed by name: `{ peer_vpc_id (required), peer_owner_id, peer_region, auto_accept, accept (bool - also manage the accepter side), manage_options_standalone (bool - manage DNS-resolution options without an accepter resource), requester_options, accepter_options, tags }`. |
@@ -129,7 +133,7 @@ AWS overloads the `aws_vpc_` resource-name prefix across several otherwise-unrel
 - **`aws_vpc_block_public_access_options`** - A region-wide singleton guardrail setting (no `vpc_id`), distinct from the per-VPC `aws_vpc_block_public_access_exclusion` this module does cover.
 - **`aws_vpc_network_performance_metric_subscription`** - Subscribes to metrics between a source/destination Region pair, not scoped to a single VPC.
 
-Also out of scope: **`aws_subnet`** (custom, user-carved subnets - as opposed to the always-created `aws_default_subnet` this module does cover) and its subnet-scoped routing (`aws_route_table`, `aws_route`, `aws_route_table_association`, `aws_main_route_table_association`). Those are covered by the companion [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module, which takes this module's `id` output as its `vpc_id` input.
+Also out of scope as resources of this module: **`aws_subnet`** (custom, user-carved subnets - as opposed to the always-created `aws_default_subnet` this module does cover) and its subnet-scoped routing (`aws_route_table`, `aws_route`, `aws_route_table_association`, `aws_main_route_table_association`). These are implemented by the companion [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module, which this module invokes for every entry in `vpc.subnets` (exposed via the `subnet_ids` output); the subnet module can also still be used standalone with this module's `id` output as its `vpc_id` input.
 
 Also out of scope: **`aws_ec2_transit_gateway*`** (connecting this VPC to other VPCs via a shared Transit Gateway hub) - the hub is an account-wide singleton, not scoped to a single VPC, so the whole resource family (hub, VPC/peering/Connect attachments, route tables, policy tables, multicast, metering) is covered by the companion [`terraform-aws-caf-transit_gateway`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-transit_gateway) module instead, whose `vpc_attachments` entries take this module's `id` output as their `vpc_id` input. Direct VPC-to-VPC connectivity without a shared hub is `peering.tf`'s `aws_vpc_peering_connection`, already covered here.
 

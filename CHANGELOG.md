@@ -7,8 +7,17 @@ This file must be updated as part of every change to this module.
 
 ## [Unreleased]
 
+## [1.1.0]
+
 ### Added
 
+- `vpc.subnets` - an optional map on the `vpc` object variable that creates
+  custom subnets inside the VPC by invoking the companion
+  `terraform-aws-caf-subnet` module (`v1.0.0`) once per entry, so a VPC and
+  its subnets can be declared with a single `vpc = each.value`. Name tag is
+  `"<env>-<userDefinedString>-<key>"`. New `subnet_ids` output (map keyed by
+  subnet name). Added a `subnets` test run, updated `README.md`'s TFVars
+  Parameters/Scope and `ESLZ/vpc.tfvars`.
 - `vpc.name` - an optional key on the `vpc` object variable that overrides
   the auto-derived `"<env>-<userDefinedString>"` Name tag with a
   user-supplied custom name, still sanitized against AWS's tag-value
