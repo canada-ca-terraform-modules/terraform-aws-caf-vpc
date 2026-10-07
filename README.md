@@ -10,7 +10,7 @@ See [Scope](#scope) below for AWS resources that share the `aws_vpc_` text prefi
 
 ```hcl
 module "vpc" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.0.0"
+  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.1.0"
   for_each = var.vpcs
 
   env               = var.env
@@ -113,6 +113,7 @@ No modules.
 | `default_route_table` | object | `null` | Adopts/manages the VPC's default route table: `{ route, propagating_vgws, tags }`. |
 | `default_network_acl` | object | `null` | Adopts/manages the VPC's default network ACL: `{ subnet_ids, ingress, egress, tags }` (`ingress`/`egress` are lists of rule objects with `rule_no`/`action`/`from_port`/`to_port`/`protocol`/`cidr_block`/etc.). |
 | `default_subnets` | map(object) | `{}` | Adopts/manages per-Availability-Zone default subnets, keyed by name: `{ availability_zone, ipv6_cidr_block, map_public_ip_on_launch, ... }`. |
+| `subnets` | map(object) | `{}` | Custom subnets, keyed by name; each value is the [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module's `subnet` object (`cidr_block`, `availability_zone`, routing, ...). Name tag is `"<env>-<userDefinedString>-<key>"`. |
 | `encryption_control` | object | `null` | VPC Encryption Control: `{ mode (required: monitor/enforce), internet_gateway_exclusion, nat_gateway_exclusion, egress_only_internet_gateway_exclusion, elastic_file_system_exclusion, lambda_exclusion, virtual_private_gateway_exclusion, tags }`. |
 | `block_public_access_exclusions` | map(object) | `{}` | VPC Block Public Access exclusions, keyed by name: `{ internet_gateway_exclusion_mode (required), subnet_id (optional - defaults to excluding the whole VPC when omitted), tags }`. |
 | `peering_connections` | map(object) | `{}` | VPC Peering, keyed by name: `{ peer_vpc_id (required), peer_owner_id, peer_region, auto_accept, accept (bool - also manage the accepter side), manage_options_standalone (bool - manage DNS-resolution options without an accepter resource), requester_options, accepter_options, tags }`. |
@@ -129,7 +130,7 @@ AWS overloads the `aws_vpc_` resource-name prefix across several otherwise-unrel
 - **`aws_vpc_block_public_access_options`** - A region-wide singleton guardrail setting (no `vpc_id`), distinct from the per-VPC `aws_vpc_block_public_access_exclusion` this module does cover.
 - **`aws_vpc_network_performance_metric_subscription`** - Subscribes to metrics between a source/destination Region pair, not scoped to a single VPC.
 
-Also out of scope: **`aws_subnet`** (custom, user-carved subnets - as opposed to the always-created `aws_default_subnet` this module does cover) and its subnet-scoped routing (`aws_route_table`, `aws_route`, `aws_route_table_association`, `aws_main_route_table_association`). Those are covered by the companion [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module, which takes this module's `id` output as its `vpc_id` input.
+Also out of scope as resources of this module: **`aws_subnet`** (custom, user-carved subnets - as opposed to the always-created `aws_default_subnet` this module does cover) and its subnet-scoped routing (`aws_route_table`, `aws_route`, `aws_route_table_association`, `aws_main_route_table_association`). These are implemented by the companion [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module, which this module invokes for every entry in `vpc.subnets` (exposed via the `subnet_ids` output); the subnet module can also still be used standalone with this module's `id` output as its `vpc_id` input.
 
 Also out of scope: **`aws_ec2_transit_gateway*`** (connecting this VPC to other VPCs via a shared Transit Gateway hub) - the hub is an account-wide singleton, not scoped to a single VPC, so the whole resource family (hub, VPC/peering/Connect attachments, route tables, policy tables, multicast, metering) is covered by the companion [`terraform-aws-caf-transit_gateway`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-transit_gateway) module instead, whose `vpc_attachments` entries take this module's `id` output as their `vpc_id` input. Direct VPC-to-VPC connectivity without a shared hub is `peering.tf`'s `aws_vpc_peering_connection`, already covered here.
 

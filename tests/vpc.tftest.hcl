@@ -533,3 +533,44 @@ run "peering_connections" {
     error_message = "only the entry with manage_options_standalone = true must create standalone options"
   }
 }
+
+# ---------------------------------------------------------------------------
+# subnets
+# vpc.subnets creates one terraform-aws-caf-subnet module instance per entry,
+# named "<env>-<userDefinedString>-<key>"; absent by default.
+# ---------------------------------------------------------------------------
+run "subnets_absent_by_default" {
+  command = plan
+
+  assert {
+    condition     = length(module.subnets) == 0
+    error_message = "No subnets must be created unless vpc.subnets is set"
+  }
+}
+
+run "subnets" {
+  command = plan
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      subnets = {
+        app-1a = { cidr_block = "10.0.1.0/24", availability_zone = "ca-central-1a" }
+        app-1b = { cidr_block = "10.0.2.0/24", availability_zone = "ca-central-1b" }
+      }
+    }
+  }
+
+  assert {
+    condition     = length(module.subnets) == 2
+    error_message = "One subnet module instance must be created per vpc.subnets entry"
+  }
+  assert {
+    condition     = module.subnets["app-1a"].name == "Dev-myapp-app-1a"
+    error_message = "Subnet Name tag must be <env>-<userDefinedString>-<key>"
+  }
+  assert {
+    condition     = module.subnets["app-1b"].availability_zone == "ca-central-1b"
+    error_message = "availability_zone must be passed through to the subnet"
+  }
+}
