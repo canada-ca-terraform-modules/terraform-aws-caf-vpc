@@ -601,8 +601,9 @@ run "flow_log_absent_by_default" {
   }
 }
 
+# Applied against the mock provider: the created log group ARN is only known after apply.
 run "flow_log_defaults" {
-  command = plan
+  command = apply
 
   variables {
     vpc = {
