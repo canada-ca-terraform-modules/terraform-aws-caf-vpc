@@ -1,4 +1,17 @@
-mock_provider "aws" {}
+mock_provider "aws" {
+  # The provider validates ARNs, which the default mock strings are not.
+  mock_resource "aws_cloudwatch_log_group" {
+    defaults = {
+      arn = "arn:aws:logs:ca-central-1:111111111111:log-group:/vpc/flow-logs/mock"
+    }
+  }
+
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::111111111111:role/mock"
+    }
+  }
+}
 
 # ---------------------------------------------------------------------------
 # Shared variables reused across all runs
@@ -572,5 +585,87 @@ run "subnets" {
   assert {
     condition     = module.subnets["app-1b"].availability_zone == "ca-central-1b"
     error_message = "availability_zone must be passed through to the subnet"
+  }
+}
+
+run "flow_log_absent_by_default" {
+  command = plan
+
+  variables {
+    vpc = { cidr_block = "10.0.0.0/16" }
+  }
+
+  assert {
+    condition     = length(module.flow_log) == 0 && output.flow_log_id == null
+    error_message = "No flow log must be created unless vpc.flow_log is set"
+  }
+}
+
+run "flow_log_defaults" {
+  command = plan
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      flow_log   = {}
+    }
+  }
+
+  assert {
+    condition     = module.flow_log["enabled"].name == "dev-myapp-flowlog"
+    error_message = "Flow log name must be <env>-<userDefinedString>-flowlog"
+  }
+  assert {
+    condition     = module.flow_log["enabled"].log_destination == "arn:aws:logs:ca-central-1:111111111111:log-group:/vpc/flow-logs/mock"
+    error_message = "An empty vpc.flow_log must log to a log group created by the flow log module"
+  }
+}
+
+run "flow_log_settings_reach_the_module" {
+  command = plan
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      flow_log   = { log_destination = "arn:aws:s3:::central-log-archive/flow-logs/" }
+    }
+  }
+
+  assert {
+    condition     = module.flow_log["enabled"].log_destination == "arn:aws:s3:::central-log-archive/flow-logs/"
+    error_message = "vpc.flow_log settings must be passed to the flow log module"
+  }
+}
+
+run "flow_log_deploy_false" {
+  command = plan
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      flow_log   = { deploy = false }
+    }
+  }
+
+  assert {
+    condition     = length(module.flow_log) == 0
+    error_message = "vpc.flow_log.deploy = false must not create a flow log"
+  }
+}
+
+# Applied against the mock provider only: the VPC id is unknown at plan time.
+run "flow_log_is_attached_to_this_vpc" {
+  command = apply
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      flow_log   = {}
+    }
+  }
+
+  assert {
+    condition     = module.flow_log["enabled"].object.vpc_id == aws_vpc.this[0].id
+    error_message = "The flow log must be attached to the VPC this module creates"
   }
 }
