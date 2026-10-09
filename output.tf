@@ -84,3 +84,8 @@ output "subnet_ids" {
   description = "Returns the IDs of the custom subnets declared under vpc.subnets, keyed by the caller's chosen name"
   value       = { for k, v in module.subnets : k => v.id }
 }
+
+output "flow_log_id" {
+  description = "Returns the ID of the VPC flow log declared under vpc.flow_log, or null when none is created"
+  value       = try(module.flow_log["enabled"].id, null)
+}

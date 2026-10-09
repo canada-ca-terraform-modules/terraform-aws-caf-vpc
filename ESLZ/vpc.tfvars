@@ -87,6 +87,15 @@ vpcs = {
     #   # map_public_ip_on_launch = true # Optional
     # }
 
+    # Optional: VPC flow log. Set it (even to {}) to create one; the value is the
+    # terraform-aws-caf-flow_log module's `flow_log` object. Defaults: all traffic to a log
+    # group created for this VPC (731 days) with its own delivery role.
+    # flow_log = {
+    #   # deploy = false # Optional. Default: true
+    #   # cloudwatch_log_group = { retention_in_days = 731 } # Optional. Default 731
+    #   # log_destination = "arn:aws:s3:::central-log-archive/flow-logs/" # Optional: S3, Firehose or an existing log group
+    # }
+
     # Optional: custom subnets, keyed by name. Each value is the
     # terraform-aws-caf-subnet module's `subnet` object (cidr_block,
     # availability_zone, route_table, ...). Name tag: "<env>-example01-<key>".

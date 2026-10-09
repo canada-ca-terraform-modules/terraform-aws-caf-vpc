@@ -10,7 +10,7 @@ See [Scope](#scope) below for AWS resources that share the `aws_vpc_` text prefi
 
 ```hcl
 module "vpc" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.1.0"
+  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.2.0"
   for_each = var.vpcs
 
   env               = var.env
@@ -40,6 +40,7 @@ See [`ESLZ/vpc.tfvars`](ESLZ/vpc.tfvars) for the full set of `vpc` object parame
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_flow_log"></a> [flow\_log](#module\_flow\_log) | github.com/canada-ca-terraform-modules/terraform-aws-caf-flow_log.git | v1.0.0 |
 | <a name="module_subnets"></a> [subnets](#module\_subnets) | github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet.git | v1.0.0 |
 
 ## Resources
@@ -83,6 +84,7 @@ See [`ESLZ/vpc.tfvars`](ESLZ/vpc.tfvars) for the full set of `vpc` object parame
 | <a name="output_default_security_group_id"></a> [default\_security\_group\_id](#output\_default\_security\_group\_id) | Returns the ID of the VPC's default security group |
 | <a name="output_default_subnet_ids"></a> [default\_subnet\_ids](#output\_default\_subnet\_ids) | Returns the IDs of managed default subnets, keyed by the caller's chosen name |
 | <a name="output_dhcp_options_id"></a> [dhcp\_options\_id](#output\_dhcp\_options\_id) | Returns the ID of the DHCP options set associated with the VPC |
+| <a name="output_flow_log_id"></a> [flow\_log\_id](#output\_flow\_log\_id) | Returns the ID of the VPC flow log declared under vpc.flow\_log, or null when none is created |
 | <a name="output_id"></a> [id](#output\_id) | Returns the ID of the VPC |
 | <a name="output_name"></a> [name](#output\_name) | Returns the generated Name tag value of the VPC |
 | <a name="output_object"></a> [object](#output\_object) | Returns the full VPC object (whichever of aws\_vpc/aws\_default\_vpc was created) |
@@ -117,6 +119,7 @@ See [`ESLZ/vpc.tfvars`](ESLZ/vpc.tfvars) for the full set of `vpc` object parame
 | `default_network_acl` | object | `null` | Adopts/manages the VPC's default network ACL: `{ subnet_ids, ingress, egress, tags }` (`ingress`/`egress` are lists of rule objects with `rule_no`/`action`/`from_port`/`to_port`/`protocol`/`cidr_block`/etc.). |
 | `default_subnets` | map(object) | `{}` | Adopts/manages per-Availability-Zone default subnets, keyed by name: `{ availability_zone, ipv6_cidr_block, map_public_ip_on_launch, ... }`. |
 | `subnets` | map(object) | `{}` | Custom subnets, keyed by name; each value is the [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module's `subnet` object (`cidr_block`, `availability_zone`, routing, ...). Name tag is `"<env>-<userDefinedString>-<key>"`. |
+| `flow_log` | object | `null` | VPC flow log; set it (even to `{}`) to create one. The value is the [`terraform-aws-caf-flow_log`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-flow_log) module's `flow_log` object (`traffic_type`, `log_destination`, `cloudwatch_log_group`, `iam_role`, ...); the VPC is filled in. `deploy = false` turns it off. With no `log_destination` a log group (731-day retention) and a delivery role are created. Names are `<env>-<userDefinedString>-flowlog\|role\|log`. |
 | `encryption_control` | object | `null` | VPC Encryption Control: `{ mode (required: monitor/enforce), internet_gateway_exclusion, nat_gateway_exclusion, egress_only_internet_gateway_exclusion, elastic_file_system_exclusion, lambda_exclusion, virtual_private_gateway_exclusion, tags }`. |
 | `block_public_access_exclusions` | map(object) | `{}` | VPC Block Public Access exclusions, keyed by name: `{ internet_gateway_exclusion_mode (required), subnet_id (optional - defaults to excluding the whole VPC when omitted), tags }`. |
 | `peering_connections` | map(object) | `{}` | VPC Peering, keyed by name: `{ peer_vpc_id (required), peer_owner_id, peer_region, auto_accept, accept (bool - also manage the accepter side), manage_options_standalone (bool - manage DNS-resolution options without an accepter resource), requester_options, accepter_options, tags }`. |
@@ -132,6 +135,8 @@ AWS overloads the `aws_vpc_` resource-name prefix across several otherwise-unrel
 - **`aws_vpclattice_*`** (13 resources) - VPC Lattice is an entirely separate AWS networking service.
 - **`aws_vpc_block_public_access_options`** - A region-wide singleton guardrail setting (no `vpc_id`), distinct from the per-VPC `aws_vpc_block_public_access_exclusion` this module does cover.
 - **`aws_vpc_network_performance_metric_subscription`** - Subscribes to metrics between a source/destination Region pair, not scoped to a single VPC.
+
+Also out of scope as resources of this module: **`aws_flow_log`** (and the log group and delivery role it needs). It is implemented by the companion [`terraform-aws-caf-flow_log`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-flow_log) module, which this module invokes when `vpc.flow_log` is set (exposed via the `flow_log_id` output); the flow log module can also still be used standalone.
 
 Also out of scope as resources of this module: **`aws_subnet`** (custom, user-carved subnets - as opposed to the always-created `aws_default_subnet` this module does cover) and its subnet-scoped routing (`aws_route_table`, `aws_route`, `aws_route_table_association`, `aws_main_route_table_association`). These are implemented by the companion [`terraform-aws-caf-subnet`](https://github.com/canada-ca-terraform-modules/terraform-aws-caf-subnet) module, which this module invokes for every entry in `vpc.subnets` (exposed via the `subnet_ids` output); the subnet module can also still be used standalone with this module's `id` output as its `vpc_id` input.
 

@@ -7,6 +7,18 @@ This file must be updated as part of every change to this module.
 
 ## [Unreleased]
 
+## [1.2.0]
+
+### Added
+
+- `vpc.flow_log` - an optional object on the `vpc` object variable that creates
+  a VPC flow log by invoking the companion `terraform-aws-caf-flow_log` module
+  (`v1.0.0`), so a VPC and its flow log can be declared with a single
+  `vpc = each.value`. The value is that module's `flow_log` object;
+  `deploy = false` turns it off. New `flow_log_id` output. Added `flow_log`
+  test runs, updated `README.md`'s TFVars Parameters/Scope and
+  `ESLZ/vpc.tfvars`.
+
 ## [1.1.0]
 
 ### Added
