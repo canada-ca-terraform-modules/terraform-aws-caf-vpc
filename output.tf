@@ -85,6 +85,11 @@ output "subnet_ids" {
   value       = { for k, v in module.subnets : k => v.id }
 }
 
+output "subnet_route_table_ids" {
+  description = "Returns the ID of the route table each custom subnet under vpc.subnets is associated with (its own, or the existing one it names), keyed by the caller's chosen name; null for a subnet on the VPC's main route table"
+  value       = { for k, v in module.subnets : k => v.route_table_id }
+}
+
 output "flow_log_id" {
   description = "Returns the ID of the VPC flow log declared under vpc.flow_log, or null when none is created"
   value       = try(module.flow_log["enabled"].id, null)
