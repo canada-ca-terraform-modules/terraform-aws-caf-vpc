@@ -7,6 +7,17 @@ This file must be updated as part of every change to this module.
 
 ## [Unreleased]
 
+## [1.3.0]
+
+### Added
+
+- `subnet_route_table_ids` output: the ID of the route table each custom
+  subnet under `vpc.subnets` is associated with (the one it creates, or the
+  existing one it names), keyed like `subnet_ids`; null for a subnet on the
+  VPC's main route table. A caller can add routes to a subnet's own table
+  without looking the table up through a data source. Added the
+  `subnet_route_table_ids` test run.
+
 ## [1.2.0]
 
 ### Added

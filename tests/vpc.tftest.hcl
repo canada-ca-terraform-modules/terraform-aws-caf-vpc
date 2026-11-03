@@ -588,6 +588,39 @@ run "subnets" {
   }
 }
 
+# Applied against the mock provider: a created route table's ID is only known after apply.
+run "subnet_route_table_ids" {
+  command = apply
+
+  variables {
+    vpc = {
+      cidr_block = "10.0.0.0/16"
+      subnets = {
+        own-1a      = { cidr_block = "10.0.1.0/24", route_table = {} }
+        existing-1b = { cidr_block = "10.0.2.0/24", route_table_id = "rtb-0123456789abcdef0" }
+        none-1d     = { cidr_block = "10.0.3.0/24" }
+      }
+    }
+  }
+
+  assert {
+    condition     = keys(output.subnet_route_table_ids) == ["existing-1b", "none-1d", "own-1a"]
+    error_message = "subnet_route_table_ids must have one entry per vpc.subnets entry"
+  }
+  assert {
+    condition     = output.subnet_route_table_ids["existing-1b"] == "rtb-0123456789abcdef0"
+    error_message = "A subnet associated with an existing route table must return that table's ID"
+  }
+  assert {
+    condition     = output.subnet_route_table_ids["own-1a"] != null && output.subnet_route_table_ids["own-1a"] != "rtb-0123456789abcdef0"
+    error_message = "A subnet with its own route table must return the ID of the table it created"
+  }
+  assert {
+    condition     = output.subnet_route_table_ids["none-1d"] == null
+    error_message = "A subnet with no route table of its own must return null (it uses the VPC's main route table)"
+  }
+}
+
 run "flow_log_absent_by_default" {
   command = plan
 

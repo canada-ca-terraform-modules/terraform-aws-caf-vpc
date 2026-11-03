@@ -9,7 +9,7 @@ variable "vpcs" {
 }
 
 module "vpc" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.2.0"
+  source   = "github.com/canada-ca-terraform-modules/terraform-aws-caf-vpc.git?ref=v1.3.0"
   for_each = var.vpcs
 
   userDefinedString = each.key
